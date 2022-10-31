@@ -1,0 +1,7 @@
+{
+  "name": "ai_picture_classification",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}
