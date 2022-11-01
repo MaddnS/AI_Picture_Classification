@@ -5,11 +5,12 @@ import {
   CameraSource,
   Photo,
 } from '@capacitor/camera';
-import { Filesystem, Directory } from '@capacitor/filesystem';
+import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
 import { Preferences } from '@capacitor/preferences';
 import { UserPhoto } from '../types/userphoto';
 import { Platform } from '@ionic/angular';
 import { Capacitor } from '@capacitor/core';
+import { PhotoWithDetails } from '../types/photowithdetails';
 
 @Injectable({
   providedIn: 'root',
@@ -18,8 +19,22 @@ export class PhotoService {
   public photos: UserPhoto[] = [];
   private PHOTO_STORAGE: string = 'photos';
   private platform: Platform;
+
+  details: PhotoWithDetails = null;
   constructor(platform: Platform) {
     this.platform = platform;
+  }
+
+  public async takePicture(): Promise<Photo> {
+    return new Promise<Photo>(async (resolve, reject) => {
+      const photo = await Camera.getPhoto({
+        resultType: CameraResultType.Uri,
+        source: CameraSource.Camera,
+        quality: 100,
+      });
+
+      resolve(photo);
+    });
   }
 
   public async addNewToGallery() {
@@ -39,10 +54,39 @@ export class PhotoService {
     });
   }
 
+  public async addNewToGalleryWithDetails(
+    photo: Photo,
+    size: number,
+    name: string,
+    type: string,
+    lat: string,
+    long: string
+  ) {
+    // Take a photo
+
+    const savedImageFile = await this.savePicWithDetails(
+      photo,
+      size,
+      name,
+      type,
+      lat,
+      long
+    );
+
+    this.photos.unshift(savedImageFile);
+
+    Preferences.set({
+      key: this.PHOTO_STORAGE,
+      value: JSON.stringify(this.photos),
+    });
+  }
+
   public async loadSaved() {
     // Retrieve cached photo array data
     const photoList = await Preferences.get({ key: this.PHOTO_STORAGE });
     this.photos = JSON.parse(photoList.value) || [];
+
+    console.log(this.photos);
 
     // Easiest way to detect when running on the web:
     // “when the platform is NOT hybrid, do this”
@@ -58,6 +102,77 @@ export class PhotoService {
         // Web platform only: Load the photo as base64 data
         photo.webviewPath = `data:image/jpeg;base64,${readFile.data}`;
       }
+    }
+  }
+
+  public async loadSavedWithDetails() {
+    // Retrieve cached photo array data
+    const photoList = await Preferences.get({ key: this.PHOTO_STORAGE });
+    this.photos = JSON.parse(photoList.value) || [];
+
+    console.log(this.photos);
+
+    // Easiest way to detect when running on the web:
+    // “when the platform is NOT hybrid, do this”
+    if (!this.platform.is('hybrid')) {
+      // Display the photo by reading into base64 format
+      for (let photo of this.photos) {
+        // Read each saved photo's data from the Filesystem
+        const readFile = await Filesystem.readFile({
+          path: photo.filepath,
+          directory: Directory.Data,
+        });
+
+        // Web platform only: Load the photo as base64 data
+        const pic: PhotoWithDetails = JSON.parse(readFile.data);
+
+        photo.webviewPath = pic.photoAsBase64;
+      }
+    }
+  }
+
+  private async savePicWithDetails(
+    photo: Photo,
+    size: number,
+    name: string,
+    type: string,
+    lat: string,
+    long: string
+  ) {
+    const base64Data = await this.readAsBase64(photo);
+    const fileName = new Date().getTime() + '.json';
+    const picWithDetails: PhotoWithDetails = {
+      photoAsBase64: base64Data,
+      details: {
+        size: size,
+        name: name,
+        type: type,
+        location: { lat: lat, long: long },
+      },
+    };
+
+    const detailsToSave = JSON.stringify(picWithDetails);
+    const savedFile = await Filesystem.writeFile({
+      path: fileName,
+      data: detailsToSave,
+      directory: Directory.Data,
+      encoding: Encoding.UTF8,
+    });
+
+    if (this.platform.is('hybrid')) {
+      // Display the new image by rewriting the 'file://' path to HTTP
+      // Details: https://ionicframework.com/docs/building/webview#file-protocol
+      return {
+        filepath: savedFile.uri,
+        webviewPath: Capacitor.convertFileSrc(savedFile.uri),
+      };
+    } else {
+      // Use webPath to display the new image instead of base64 since it's
+      // already loaded into memory
+      return {
+        filepath: fileName,
+        webviewPath: photo.webPath,
+      };
     }
   }
 

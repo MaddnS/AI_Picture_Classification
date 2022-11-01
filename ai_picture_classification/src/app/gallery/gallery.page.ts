@@ -1,7 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { PhotoService } from '../services/photo.service';
-import { ActionSheetController } from '@ionic/angular';
+import { ActionSheetController, ModalController } from '@ionic/angular';
 import { UserPhoto } from '../types/userphoto';
+
+import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
+import { PhotoWithDetails } from '../types/photowithdetails';
+import { ModalComponent } from '../modal/modal.component';
 
 @Component({
   selector: 'app-gallery',
@@ -9,13 +13,16 @@ import { UserPhoto } from '../types/userphoto';
   styleUrls: ['gallery.page.scss'],
 })
 export class GalleryPage implements OnInit {
+  data: PhotoWithDetails;
   constructor(
     private photoService: PhotoService,
-    private actionSheet: ActionSheetController
+    private actionSheet: ActionSheetController,
+    private modalCtrl: ModalController
   ) {}
 
   async ngOnInit() {
-    await this.photoService.loadSaved();
+    //await this.photoService.loadSaved();
+    await this.photoService.loadSavedWithDetails();
   }
 
   public async showActionSheet(photo: UserPhoto, position: number) {
@@ -41,5 +48,22 @@ export class GalleryPage implements OnInit {
       ],
     });
     await actionSheet.present();
+  }
+
+  async showDetails(data) {
+    this.data = null;
+
+    const readFile = await Filesystem.readFile({
+      path: data.filepath,
+      directory: Directory.Data,
+    });
+
+    this.data = JSON.parse(readFile.data);
+
+    const modal = await this.modalCtrl.create({
+      component: ModalComponent,
+      componentProps: { showDetails: true, data: this.data },
+    });
+    modal.present();
   }
 }

@@ -7,6 +7,7 @@ import { GalleryPage } from './gallery.page';
 import { ExploreContainerComponentModule } from '../explore-container/explore-container.module';
 
 import { GalleryPageRoutingModule } from './gallery-routing.module';
+import { HammerModule } from '@angular/platform-browser';
 
 @NgModule({
   imports: [
@@ -15,6 +16,7 @@ import { GalleryPageRoutingModule } from './gallery-routing.module';
     FormsModule,
     ExploreContainerComponentModule,
     GalleryPageRoutingModule,
+    HammerModule,
   ],
   declarations: [GalleryPage],
 })

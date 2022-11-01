@@ -1,0 +1,35 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button color="medium" (click)="cancel()">Cancel</ion-button>
+    </ion-buttons>
+    <ion-title>Welcome</ion-title>
+  </ion-toolbar>
+</ion-header>
+<ion-content class="ion-padding" *ngIf="!showDetails">
+ <!--  <ion-item >
+    <ion-label position="stacked">Wie oft passt dein Smartphone rein?</ion-label>
+    <ion-input [value]="size" type="number" (input)="input_event($event)"></ion-input>
+  </ion-item> -->
+
+  <form #f="ngForm" (ngSubmit)="onSubmit(f)" novalidate>
+    <ion-input type="number" name="size" ngModel required #size="ngModel"></ion-input>
+    <ion-button type="submit" >Submit</ion-button>
+  </form>
+
+  <p>Size value: {{ size.value }}</p>
+  <p>Size valid: {{ size.valid }}</p>
+  <p>Form value: {{ f.value | json }}</p>
+  <p>Form valid: {{ f.valid }}</p>
+
+</ion-content>
+
+<ion-content class="ion-padding" *ngIf="showDetails">
+  <ion-img [src]="data.photoAsBase64"></ion-img>
+  <div> Size: {{data.details.size}}</div>
+  <div> Type: {{data.details.type}}</div>
+  <div> Name: {{data.details.name}}</div>
+  <div> Found:</div>
+  <div> Lat: {{data.details.location.lat}}</div>
+  <div> Long: {{data.details.location.long}}</div>
+ </ion-content>
