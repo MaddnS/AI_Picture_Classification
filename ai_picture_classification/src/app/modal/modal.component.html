@@ -3,7 +3,8 @@
     <ion-buttons slot="start">
       <ion-button color="medium" (click)="cancel()">Cancel</ion-button>
     </ion-buttons>
-    <ion-title>Welcome</ion-title>
+    <ion-title *ngIf="!showDetails">Nice!</ion-title>
+    <ion-title *ngIf="showDetails">{{data.details.name}}</ion-title>
   </ion-toolbar>
 </ion-header>
 <ion-content class="ion-padding" *ngIf="!showDetails">
@@ -11,7 +12,7 @@
     <ion-label position="stacked">Wie oft passt dein Smartphone rein?</ion-label>
     <ion-input [value]="size" type="number" (input)="input_event($event)"></ion-input>
   </ion-item> -->
-
+  <ion-label position="stacked">Wie oft passt dein Smartphone rein?</ion-label>
   <form #f="ngForm" (ngSubmit)="onSubmit(f)" novalidate>
     <ion-input type="number" name="size" ngModel required #size="ngModel"></ion-input>
     <ion-button type="submit" >Submit</ion-button>

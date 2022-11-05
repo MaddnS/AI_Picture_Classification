@@ -54,6 +54,17 @@ export class PhotoService {
     });
   }
 
+  public async makePhotoForAI() {
+    const capturedPhoto = await Camera.getPhoto({
+      resultType: CameraResultType.Uri,
+      source: CameraSource.Camera,
+      quality: 100,
+    });
+    const savedImageFile = await this.savePictureForAI(capturedPhoto);
+
+    return savedImageFile;
+  }
+
   public async addNewToGalleryWithDetails(
     photo: Photo,
     size: number,
@@ -72,6 +83,8 @@ export class PhotoService {
       lat,
       long
     );
+
+    console.log(savedImageFile);
 
     this.photos.unshift(savedImageFile);
 
@@ -165,7 +178,9 @@ export class PhotoService {
       // Details: https://ionicframework.com/docs/building/webview#file-protocol
       return {
         filepath: savedFile.uri,
-        webviewPath: Capacitor.convertFileSrc(savedFile.uri),
+        webviewPath: photo.webPath,
+        path: savedFile,
+        path2: Capacitor.convertFileSrc(savedFile.uri),
       };
     } else {
       // Use webPath to display the new image instead of base64 since it's
@@ -173,6 +188,8 @@ export class PhotoService {
       return {
         filepath: fileName,
         webviewPath: photo.webPath,
+        path: savedFile,
+        path2: Capacitor.convertFileSrc(savedFile.uri),
       };
     }
   }
@@ -202,6 +219,35 @@ export class PhotoService {
       return {
         filepath: fileName,
         webviewPath: photo.webPath,
+      };
+    }
+  }
+
+  private async savePictureForAI(photo: Photo) {
+    const base64Data = await this.readAsBase64(photo);
+
+    const fileName = new Date().getTime() + '.jpeg';
+    const savedFile = await Filesystem.writeFile({
+      path: fileName,
+      data: base64Data,
+      directory: Directory.Data,
+    });
+
+    if (this.platform.is('hybrid')) {
+      // Display the new image by rewriting the 'file://' path to HTTP
+      // Details: https://ionicframework.com/docs/building/webview#file-protocol
+      return {
+        filepath: savedFile.uri,
+        webviewPath: Capacitor.convertFileSrc(savedFile.uri),
+        base64: base64Data,
+      };
+    } else {
+      // Use webPath to display the new image instead of base64 since it's
+      // already loaded into memory
+      return {
+        filepath: fileName,
+        webviewPath: photo.webPath,
+        base64: base64Data,
       };
     }
   }

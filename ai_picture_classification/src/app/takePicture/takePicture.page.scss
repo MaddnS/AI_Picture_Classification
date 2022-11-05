@@ -1,0 +1,22 @@
+.cont > * {
+    margin: 15px 0; 
+}
+
+img{
+    width: 300px;
+    height: 300px;
+}
+
+.open_cams_icon{
+    padding-bottom: 50px;
+}
+
+.pic, .predictions{
+    place-content: center;
+    padding-top: 20px;
+    padding-bottom: 20px;
+}
+
+.custom-file{
+    justify-content: center;
+}

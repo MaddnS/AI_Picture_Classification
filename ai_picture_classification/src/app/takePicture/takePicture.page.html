@@ -9,15 +9,75 @@
 <ion-content [fullscreen]="true">
   <ion-header collapse="condense">
     <ion-toolbar>
-      <ion-title size="large">Take a Picture</ion-title>
+      <ion-title size="large">Ready For AI?</ion-title>
     </ion-toolbar>
   </ion-header>
 
-  <ion-fab vertical="bottom" horizontal="center" slot="fixed">
+ <!--  <ion-fab vertical="bottom" horizontal="left" slot="fixed">
     <ion-fab-button (click)="takePicture()">
       <ion-icon name="camera"></ion-icon>
     </ion-fab-button>
+    
   </ion-fab>
 
+  <ion-fab vertical="bottom" horizontal="right" slot="fixed" >
+    <ion-fab-button (click)="takePicture()">
+      <ion-icon name="camera"></ion-icon>
+    </ion-fab-button>
+    
+  </ion-fab> -->
+
+  <ion-fab class="open_cams_icon" slot="fixed" vertical="bottom" horizontal="start">
+    <ion-fab-button>
+      <ion-icon name="chevron-forward-circle"></ion-icon>
+    </ion-fab-button>
+    <ion-fab-list side="end">
+      <ion-col>
+        <label>For Classification</label>
+        <ion-fab-button (click)="classifyCamPic()">
+          <ion-icon name="camera"></ion-icon>
+        </ion-fab-button>
+      </ion-col>
+      
+      <ion-col>
+        <label>Save to Storage</label>
+        <ion-fab-button (click)="takePicture()">
+          <ion-icon name="camera"></ion-icon>
+        </ion-fab-button>
+      </ion-col>
+      
+    </ion-fab-list>
+  </ion-fab>
+
+
+  <ion-grid>
+
+    <ion-row class="custom-file">
+      <div >
+        <input type="file" class="custom-file-input" (change)="fileChangeEvent($event)">
+      </div>
+    </ion-row>
+   
+    <ion-row class="pic">
+      <div *ngIf="loading; else elseBlock">
+        <img src="./assets/loading.gif">
+      </div>
+    
+      <ng-template #elseBlock>
+        <img [src]="imageSrc" #img *ngIf="imageSrc">
+      </ng-template>
+    </ion-row>
+  
+   <ion-row class="predictions">
+    <div class="list-group">
+      <div class="list-group-item" *ngFor="let prediction of predictions">
+        {{prediction.className}} - {{prediction.probability}}
+      </div>
+    </div>
+   </ion-row>
+  
+    
+  
+  </ion-grid>
 
 </ion-content>
