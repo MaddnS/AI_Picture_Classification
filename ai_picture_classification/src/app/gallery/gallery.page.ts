@@ -56,6 +56,7 @@ export class GalleryPage implements OnInit {
     const readFile = await Filesystem.readFile({
       path: data.filepath,
       directory: Directory.Data,
+      encoding: Encoding.UTF8,
     });
 
     this.data = JSON.parse(readFile.data);

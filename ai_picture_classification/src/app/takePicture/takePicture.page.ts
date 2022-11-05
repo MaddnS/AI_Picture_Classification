@@ -23,11 +23,11 @@ export class TakePicturePage {
 
   takePicture() {
     this.photoService.takePicture().then((photo) => {
-      this.openModal(photo);
+      this.addDetailsToPicture(photo);
     });
   }
 
-  async openModal(photo: Photo) {
+  async addDetailsToPicture(photo: Photo) {
     const modal = await this.modalCtrl.create({
       component: ModalComponent,
       componentProps: {
