@@ -46,11 +46,11 @@ export class TakePicturePage implements OnInit {
       reader.onload = (res: any) => {
         this.imageSrc = res.target.result;
         setTimeout(async () => {
-          const imgEl = await tf.browser.fromPixels(this.imageEl.nativeElement);
+          const imgEl = this.imageEl.nativeElement;
           //this.predictions = await this.model.classify(imgEl);
-          this.predictions = await this.modelKeras.predict([imgEl], {
-            batchSize: 1,
-          });
+          this.predictions = await this.modelKeras.predict(
+            tf.browser.fromPixels(imgEl, 3)
+          );
         }, 0);
       };
     }
