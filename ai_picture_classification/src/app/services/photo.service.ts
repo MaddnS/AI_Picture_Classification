@@ -62,7 +62,7 @@ export class PhotoService {
     });
     const savedImageFile = await this.savePictureForAI(capturedPhoto);
 
-    return savedImageFile;
+    return { file: savedImageFile, photo: capturedPhoto };
   }
 
   public async addNewToGalleryWithDetails(
@@ -70,6 +70,7 @@ export class PhotoService {
     size: number,
     name: string,
     type: string,
+    probability: number,
     lat: string,
     long: string
   ) {
@@ -80,6 +81,7 @@ export class PhotoService {
       size,
       name,
       type,
+      probability,
       lat,
       long
     );
@@ -150,6 +152,7 @@ export class PhotoService {
     size: number,
     name: string,
     type: string,
+    probability: number,
     lat: string,
     long: string
   ) {
@@ -161,6 +164,7 @@ export class PhotoService {
         size: size,
         name: name,
         type: type,
+        probability: probability,
         location: { lat: lat, long: long },
       },
     };

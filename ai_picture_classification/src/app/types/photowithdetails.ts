@@ -5,6 +5,7 @@ export interface PhotoWithDetails {
     size: number;
     name: string;
     type: string;
+    probability: number;
     location: {
       lat: string;
       long: string;

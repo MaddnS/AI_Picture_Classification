@@ -11,7 +11,6 @@ import { PhotoWithDetails } from '../types/photowithdetails';
 })
 export class ModalComponent {
   size: number;
-
   name: string;
 
   @Input('details') showDetails;
@@ -25,8 +24,12 @@ export class ModalComponent {
 
   onSubmit(f: NgForm) {
     this.size = f.value.size;
+    this.name = f.value.name;
     if (f.valid) {
-      return this.modalCtrl.dismiss(this.size, 'confirm');
+      return this.modalCtrl.dismiss(
+        { size: this.size, name: this.name },
+        'confirm'
+      );
     }
   }
 }
