@@ -7,6 +7,9 @@ import { Prediction } from '../types/prediction';
 //import * as mobilenet from '@tensorflow-models/mobilenet';
 import { Platform } from '@ionic/angular';
 import * as tf from '@tensorflow/tfjs';
+import { HttpClient } from '@angular/common/http';
+import * as env from '../../environments/environment';
+import { string, TensorContainer } from '@tensorflow/tfjs-core';
 
 @Component({
   selector: 'app-takePicture',
@@ -21,11 +24,21 @@ export class TakePicturePage implements OnInit {
   predictions: Prediction[] | any;
   @ViewChild('img') imageEl: ElementRef;
   modelKeras: tf.LayersModel;
+  result: any;
+  show: any[];
+  classNames: string[] = [
+    'gewoehnlicheGelbflechte',
+    'Mauerflechte',
+    'HelmSchwielenflechte',
+    'weisseBlatternflechte',
+    'zierlicheGelbflechte',
+  ];
 
   constructor(
     private photoService: PhotoService,
     private modalCtrl: ModalController,
-    private platform: Platform
+    private platform: Platform,
+    private http: HttpClient
   ) {}
 
   async ngOnInit() {
@@ -34,6 +47,8 @@ export class TakePicturePage implements OnInit {
     this.loading = true;
     //this.model = await mobilenet.load();
     this.modelKeras = await tf.loadLayersModel(modelUrl);
+    console.log('model loaded: ', this.modelKeras);
+
     this.loading = false;
   }
 
@@ -45,12 +60,29 @@ export class TakePicturePage implements OnInit {
 
       reader.onload = (res: any) => {
         this.imageSrc = res.target.result;
+
         setTimeout(async () => {
+          const myImage = new Image(180, 180);
+          myImage.src = res.target.result;
           const imgEl = this.imageEl.nativeElement;
-          //this.predictions = await this.model.classify(imgEl);
-          this.predictions = await this.modelKeras.predict(
-            tf.browser.fromPixels(imgEl, 3)
-          );
+          const imgForClassification = tf.browser.fromPixels(myImage);
+          const x = tf.expandDims(imgForClassification, null);
+          this.predictions = this.modelKeras.predict(x);
+          this.result = await this.predictions.dataSync();
+          if (this.result) {
+            const prob = tf.softmax(this.result).dataSync();
+
+            let show = [];
+            for (let i = 0; i < this.result.length; i++) {
+              show.push({
+                name: this.classNames[i],
+                value: (Math.round(prob[i] * 1000) / 1000) * 100,
+              });
+            }
+            console.log(this.result);
+            console.log(show);
+            this.show = show;
+          }
         }, 0);
       };
     }
@@ -59,7 +91,7 @@ export class TakePicturePage implements OnInit {
   classifyCamPic() {
     this.photoService.makePhotoForAI().then((data) => {
       this.imageSrc = data.base64;
-      const myImage = new Image(256, 256);
+      const myImage = new Image(180, 180);
 
       if (this.platform.is('hybrid')) {
         myImage.src = '	data:image/jpeg;base64,' + data.base64;
@@ -70,11 +102,32 @@ export class TakePicturePage implements OnInit {
       }
 
       setTimeout(async () => {
-        //this.predictions = await this.model.classify(myImage);
         const imgForClassification = tf.browser.fromPixels(myImage);
-        this.predictions = await this.modelKeras.predict(imgForClassification);
+        const x = tf.expandDims(imgForClassification, null);
+        this.predictions = await this.modelKeras.predict(x);
+        this.result = await this.predictions.dataSync();
+        if (this.result) {
+          const prob = tf.softmax(this.result).dataSync();
+
+          let show = [];
+          for (let i = 0; i < this.result.length; i++) {
+            show.push({
+              name: this.classNames[i],
+              value: (Math.round(prob[i] * 1000) / 1000) * 100,
+            });
+          }
+          console.log(this.result);
+          console.log(show);
+          this.show = show;
+        }
       }, 0);
     });
+  }
+
+  classifyOverServer(pic: any) {
+    return this.http.get<any>(
+      'http://' + env.environment.server + 'classify?pic=' + pic
+    );
   }
 
   addPhotoToGallery() {

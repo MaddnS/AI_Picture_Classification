@@ -70,8 +70,11 @@
   
    <ion-row class="predictions">
     <div class="list-group">
-      <div class="list-group-item" *ngFor="let prediction of predictions">
+      <!-- <div class="list-group-item" *ngFor="let prediction of predictions">
         {{prediction.className}} - {{prediction.probability}}
+      </div> -->
+      <div class="list-group-item" *ngFor="let prediction of show">
+        {{prediction.name}} : {{prediction.value}}%
       </div>
     </div>
    </ion-row>

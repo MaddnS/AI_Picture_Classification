@@ -6,12 +6,14 @@ import { TakePicturePage } from './takePicture.page';
 import { ExploreContainerComponentModule } from '../explore-container/explore-container.module';
 
 import { TakePicturePageRoutingModule } from './takePicture-routing.module';
+import { HttpClientModule } from '@angular/common/http';
 
 @NgModule({
   imports: [
     IonicModule,
     CommonModule,
     FormsModule,
+    HttpClientModule,
     ExploreContainerComponentModule,
     TakePicturePageRoutingModule,
   ],
