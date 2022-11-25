@@ -13,39 +13,17 @@
     </ion-toolbar>
   </ion-header>
 
- <!--  <ion-fab vertical="bottom" horizontal="left" slot="fixed">
-    <ion-fab-button (click)="takePicture()">
-      <ion-icon name="camera"></ion-icon>
-    </ion-fab-button>
-    
-  </ion-fab>
-
-  <ion-fab vertical="bottom" horizontal="right" slot="fixed" >
-    <ion-fab-button (click)="takePicture()">
-      <ion-icon name="camera"></ion-icon>
-    </ion-fab-button>
-    
-  </ion-fab> -->
-
   <ion-fab class="open_cams_icon" slot="fixed" vertical="bottom" horizontal="start">
     <ion-fab-button>
       <ion-icon name="chevron-forward-circle"></ion-icon>
     </ion-fab-button>
     <ion-fab-list side="end">
       <ion-col>
-        <label>For Classification</label>
+        <label>c&s</label>
         <ion-fab-button (click)="classifyAndSave()">
           <ion-icon name="camera"></ion-icon>
         </ion-fab-button>
-      </ion-col>
-      
-      <ion-col>
-        <label>Save to Storage</label>
-        <ion-fab-button (click)="takePicture()">
-          <ion-icon name="camera"></ion-icon>
-        </ion-fab-button>
-      </ion-col>
-      
+      </ion-col> 
     </ion-fab-list>
   </ion-fab>
 

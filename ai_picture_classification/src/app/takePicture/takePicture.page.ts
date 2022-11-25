@@ -8,8 +8,7 @@ import { Prediction } from '../types/prediction';
 import { Platform } from '@ionic/angular';
 import * as tf from '@tensorflow/tfjs';
 import { HttpClient } from '@angular/common/http';
-import * as env from '../../environments/environment';
-import { string, TensorContainer } from '@tensorflow/tfjs-core';
+import lichenModel from '../model/model.json';
 
 @Component({
   selector: 'app-takePicture',
@@ -45,7 +44,6 @@ export class TakePicturePage implements OnInit {
     //const modelUrl = '../model/model.json';
     const modelUrl = 'http://localhost:42069/lichen_model';
     this.loading = true;
-    //this.model = await mobilenet.load();
     this.modelKeras = await tf.loadLayersModel(modelUrl);
     console.log('model loaded: ', this.modelKeras);
 
@@ -88,7 +86,8 @@ export class TakePicturePage implements OnInit {
     }
   }
 
-  classifyCamPic() {
+  async classifyAndSave() {
+    this.loading = true;
     this.photoService.makePhotoForAI().then((data) => {
       this.imageSrc = data.file.base64;
       const myImage = new Image(180, 180);
@@ -116,44 +115,6 @@ export class TakePicturePage implements OnInit {
               value: (Math.round(prob[i] * 1000) / 1000) * 100,
             });
           }
-          console.log(this.result);
-          console.log(show);
-          this.show = show;
-        }
-      }, 0);
-    });
-  }
-
-  classifyAndSave() {
-    this.photoService.makePhotoForAI().then((data) => {
-      this.imageSrc = data.file.base64;
-      const myImage = new Image(180, 180);
-
-      if (this.platform.is('hybrid')) {
-        myImage.src = '	data:image/jpeg;base64,' + data.file.base64;
-        this.imageSrc = data.file.webviewPath;
-      } else {
-        myImage.src = data.file.base64;
-        this.imageSrc = data.file.base64;
-      }
-
-      setTimeout(async () => {
-        const imgForClassification = tf.browser.fromPixels(myImage);
-        const x = tf.expandDims(imgForClassification, null);
-        this.predictions = await this.modelKeras.predict(x);
-        this.result = await this.predictions.dataSync();
-        if (this.result) {
-          const prob = tf.softmax(this.result).dataSync();
-
-          let show = [];
-          for (let i = 0; i < this.result.length; i++) {
-            show.push({
-              name: this.classNames[i],
-              value: (Math.round(prob[i] * 1000) / 1000) * 100,
-            });
-          }
-          console.log(this.result);
-          console.log(show);
           this.show = show;
         }
       }, 0);
@@ -172,13 +133,8 @@ export class TakePicturePage implements OnInit {
           'lat',
           'long'
         );
+        this.loading = false;
       }, 1);
-    });
-  }
-
-  takePicture() {
-    this.photoService.takePicture().then((photo) => {
-      this.addDetailsToPicture(photo, '', 0, '', '');
     });
   }
 
